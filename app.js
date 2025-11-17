@@ -1,8 +1,19 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+// Load environment variables from .env
+require('dotenv').config();
+
+var createError   = require('http-errors');
+var express       = require('express');
+var path          = require('path');
+var cookieParser  = require('cookie-parser');
+var logger        = require('morgan');
+
+// ----- MongoDB (Mongoose) setup -----
+const mongoose = require('mongoose');
+
+// Connect to MongoDB Atlas using the MONGO_URI from .env
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ Connected to MongoDB Atlas'))
+  .catch(err => console.error('❌ MongoDB connection error:', err));
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');

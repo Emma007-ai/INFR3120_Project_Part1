@@ -1,51 +1,46 @@
 // routes/index.js
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
 const router = express.Router();
 
-const DATA_FILE = path.join(__dirname, '..', 'data', 'recipes.json');
-
-// ---------- helpers ----------
-function readRecipes() {
-  try {
-    if (!fs.existsSync(DATA_FILE)) return [];
-    const raw = fs.readFileSync(DATA_FILE, 'utf8');
-    return JSON.parse(raw || '[]');
-  } catch (err) {
-    console.error('Error reading recipes.json:', err);
-    return [];
-  }
-}
-
-function writeRecipes(list) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(list, null, 2), 'utf8');
-}
+const Recipe = require('../data/recipes');
 
 // ---------- HOME + SEARCH + VIEW MODE ----------
-router.get('/', (req, res) => {
-  const allRecipes = readRecipes();
+router.get('/', async (req, res) => {
+  try {
+    const searchQuery = (req.query.q || '').trim();
+    const viewMode = (req.query.view || 'dashboard').toLowerCase(); // 'dashboard' or 'list'
 
-  const searchQuery = (req.query.q || '').trim();
-  const searchLower = searchQuery.toLowerCase();
-  const viewMode = (req.query.view || 'dashboard').toLowerCase(); // 'dashboard' or 'list'
+    let recipes = [];
 
-  let recipes = allRecipes;
+    if (searchQuery.length > 0) {
+      const regex = new RegExp(searchQuery, 'i'); // case-insensitive
+      recipes = await Recipe.find({
+        $or: [
+          { name: regex },
+          { ingredients: regex },
+          { notes: regex }
+        ]
+      }).sort({ createdAt: -1 });
+    } else {
+      recipes = await Recipe.find().sort({ createdAt: -1 });
+    }
 
-  if (searchQuery.length > 0) {
-    recipes = allRecipes.filter(r =>
-      (r.name && r.name.toLowerCase().includes(searchLower)) ||
-      (r.ingredients && r.ingredients.toLowerCase().includes(searchLower)) ||
-      (r.notes && r.notes.toLowerCase().includes(searchLower))
-    );
+    res.render('index', {
+      title: 'RecipeCraft',
+      recipes,
+      searchQuery,
+      viewMode
+    });
+  } catch (err) {
+    console.error('Error loading recipes:', err);
+    res.render('index', {
+      title: 'RecipeCraft',
+      recipes: [],
+      searchQuery: '',
+      viewMode: 'dashboard',
+      error: 'Could not load recipes right now.'
+    });
   }
-
-  res.render('index', {
-    title: 'RecipeCraft',
-    recipes,
-    searchQuery,
-    viewMode
-  });
 });
 
 // ---------- CREATE ----------
@@ -56,104 +51,135 @@ router.get('/create', (req, res) => {
   });
 });
 
-router.post('/create', (req, res) => {
-  const recipes = readRecipes();
+router.post('/create', async (req, res) => {
+  try {
+    const newRecipe = {
+      id: Date.now().toString(),   // keep same id style as before
+      name: req.body.name,
+      ingredients: req.body.ingredients,
+      steps: req.body.steps,
+      time: req.body.time,
+      equipment: req.body.equipment,
+      image: req.body.image,
+      notes: req.body.notes
+    };
 
-  const newRecipe = {
-    id: Date.now().toString(),
-    name: req.body.name,
-    ingredients: req.body.ingredients,
-    steps: req.body.steps,
-    time: req.body.time,
-    equipment: req.body.equipment,
-    image: req.body.image,
-    notes: req.body.notes
-  };
-
-  recipes.push(newRecipe);
-  writeRecipes(recipes);
-  res.redirect('/');
+    await Recipe.create(newRecipe);
+    res.redirect('/');
+  } catch (err) {
+    console.error('Error creating recipe:', err);
+    res.redirect('/');
+  }
 });
 
 // ---------- EDIT ----------
-router.get('/edit/:id', (req, res) => {
-  const recipes = readRecipes();
-  const recipe = recipes.find(r => r.id === req.params.id);
+router.get('/edit/:id', async (req, res) => {
+  try {
+    const recipe = await Recipe.findOne({ id: req.params.id });
+    if (!recipe) return res.redirect('/');
 
-  if (!recipe) return res.redirect('/');
-
-  res.render('edit', {
-    title: 'Edit Recipe',
-    recipe,
-    searchQuery: ''
-  });
+    res.render('edit', {
+      title: 'Edit Recipe',
+      recipe,
+      searchQuery: ''
+    });
+  } catch (err) {
+    console.error('Error loading recipe for edit:', err);
+    res.redirect('/');
+  }
 });
 
-router.post('/edit/:id', (req, res) => {
-  const recipes = readRecipes();
-  const idx = recipes.findIndex(r => r.id === req.params.id);
+router.post('/edit/:id', async (req, res) => {
+  try {
+    const updated = {
+      name: req.body.name,
+      ingredients: req.body.ingredients,
+      steps: req.body.steps,
+      time: req.body.time,
+      equipment: req.body.equipment,
+      image: req.body.image,
+      notes: req.body.notes
+    };
 
-  if (idx === -1) return res.redirect('/');
-
-  recipes[idx] = {
-    ...recipes[idx],
-    name: req.body.name,
-    ingredients: req.body.ingredients,
-    steps: req.body.steps,
-    time: req.body.time,
-    equipment: req.body.equipment,
-    image: req.body.image,
-    notes: req.body.notes
-  };
-
-  writeRecipes(recipes);
-  res.redirect('/');
+    await Recipe.findOneAndUpdate({ id: req.params.id }, updated);
+    res.redirect('/');
+  } catch (err) {
+    console.error('Error updating recipe:', err);
+    res.redirect('/');
+  }
 });
 
 // ---------- DELETE ----------
-router.post('/delete/:id', (req, res) => {
-  let recipes = readRecipes();
-  recipes = recipes.filter(r => r.id !== req.params.id);
-  writeRecipes(recipes);
-  res.redirect('/');
+router.post('/delete/:id', async (req, res) => {
+  try {
+    await Recipe.findOneAndDelete({ id: req.params.id });
+    res.redirect('/');
+  } catch (err) {
+    console.error('Error deleting recipe:', err);
+    res.redirect('/');
+  }
 });
 
 // ---------- READ-ONLY VIEW ONE RECIPE ----------
-router.get('/view/:id', (req, res) => {
-  const recipes = readRecipes();
-  const recipe = recipes.find(r => r.id === req.params.id);
+router.get('/view/:id', async (req, res) => {
+  try {
+    const recipe = await Recipe.findOne({ id: req.params.id });
 
-  if (!recipe) {
-    return res.redirect('/?view=list');
+    if (!recipe) {
+      return res.redirect('/?view=list');
+    }
+
+    res.render('recipe-view', {
+      title: recipe.name ? `${recipe.name} | View Recipe` : 'View Recipe',
+      searchQuery: '',
+      recipe
+    });
+  } catch (err) {
+    console.error('Error viewing recipe:', err);
+    res.redirect('/?view=list');
   }
-
-  res.render('recipe-view', {
-    title: recipe.name ? `${recipe.name} | View Recipe` : 'View Recipe',
-    searchQuery: '',
-    recipe
-  });
 });
 
 // ---------- ABOUT ----------
-router.get('/about', (req, res) => {
-  const allRecipes = readRecipes();
-  res.render('about', {
-    title: 'About RecipeCraft',
-    searchQuery: '',
-    recipes: allRecipes
-  });
+router.get('/about', async (req, res) => {
+  try {
+    const allRecipes = await Recipe.find().sort({ createdAt: -1 });
+    res.render('about', {
+      title: 'About RecipeCraft',
+      searchQuery: '',
+      recipes: allRecipes
+    });
+  } catch (err) {
+    console.error('Error loading recipes for about page:', err);
+    res.render('about', {
+      title: 'About RecipeCraft',
+      searchQuery: '',
+      recipes: []
+    });
+  }
 });
 
 // ---------- CONTACT ----------
-router.get('/contact', (req, res) => {
-  const sent = req.query.sent === '1';
-  const allRecipes = readRecipes();
-  res.render('contact', {
-    title: 'Contact RecipeCraft',
-    searchQuery: '',
-    submitted: sent,
-    recipes: allRecipes
-  });
+router.get('/contact', async (req, res) => {
+  try {
+    const sent = req.query.sent === '1';
+    const allRecipes = await Recipe.find().sort({ createdAt: -1 });
+
+    res.render('contact', {
+      title: 'Contact RecipeCraft',
+      searchQuery: '',
+      submitted: sent,
+      recipes: allRecipes
+    });
+  } catch (err) {
+    console.error('Error loading recipes for contact page:', err);
+    res.render('contact', {
+      title: 'Contact RecipeCraft',
+      searchQuery: '',
+      submitted: false,
+      recipes: []
+    });
+  }
 });
 
 router.post('/contact', (req, res) => {
