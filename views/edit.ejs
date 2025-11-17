@@ -1,0 +1,79 @@
+<%- include('partials/header') %>
+
+<h2 class="mb-4">Edit Recipe</h2>
+
+<form action="/edit/<%= recipe.id %>" method="POST" class="card p-4 shadow-sm">
+
+  <!-- Recipe Name -->
+  <div class="mb-3">
+    <label class="form-label">Recipe Name</label>
+    <input
+      type="text"
+      name="name"
+      class="form-control"
+      value="<%= recipe.name %>"
+      required>
+  </div>
+
+  <!-- Ingredients -->
+  <div class="mb-3">
+    <label class="form-label">Ingredients (comma separated)</label>
+    <textarea
+      name="ingredients"
+      class="form-control"
+      rows="3"><%= recipe.ingredients %></textarea>
+  </div>
+
+  <!-- Instructions -->
+  <div class="mb-3">
+    <label class="form-label">Instructions / Steps</label>
+    <textarea
+      name="steps"
+      class="form-control"
+      rows="4"><%= recipe.steps %></textarea>
+  </div>
+
+  <!-- Duration -->
+  <div class="mb-3">
+    <label class="form-label">Duration</label>
+    <input
+      type="text"
+      name="time"
+      class="form-control"
+      value="<%= recipe.time %>">
+  </div>
+
+  <!-- Equipment -->
+  <div class="mb-3">
+    <label class="form-label">Equipment Needed</label>
+    <input
+      type="text"
+      name="equipment"
+      class="form-control"
+      value="<%= recipe.equipment || "" %>">
+  </div>
+
+  <!-- Image URL -->
+  <div class="mb-3">
+    <label class="form-label">Image URL (optional)</label>
+    <input
+      type="text"
+      name="image"
+      class="form-control"
+      value="<%= recipe.image %>">
+  </div>
+
+  <!-- Notes -->
+  <div class="mb-3">
+    <label class="form-label">Notes (optional)</label>
+    <textarea
+      name="notes"
+      class="form-control"
+      rows="2"><%= recipe.notes %></textarea>
+  </div>
+
+  <button class="btn btn-success mt-2">Save Changes</button>
+  <a href="/" class="btn btn-secondary mt-2 ms-2">Cancel</a>
+</form>
+
+<%- include('partials/footer') %>

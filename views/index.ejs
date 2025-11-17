@@ -26,3 +26,117 @@
   </div>
 </section>
 
+<!-- ========================= FEATURE CARDS ========================= -->
+<section class="info-strip mt-4">
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="info-card h-100">
+        <h6>User-Centered</h6>
+        <p>Your feedback shapes RecipeCraft so saving and updating
+           your recipes feels simple and smooth.</p>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="info-card h-100">
+        <h6>Diverse Recipes</h6>
+        <p>Store any style of dish with clear instructions and notes
+           for easy cooking.</p>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="info-card h-100">
+        <h6>Fun Community</h6>
+        <p>Perfect for campus cooking clubs and partners to make sharing
+           and organizing recipes easier.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= RECIPE TABLE ========================= -->
+<section class="recipes-shell mt-5">
+  <div class="recipes-card">
+
+    <% 
+      const hasSearch = typeof searchQuery !== 'undefined' && searchQuery.trim().length > 0;
+      const hasRecipes = recipes && recipes.length > 0;
+    %>
+
+    <% if (hasSearch && !hasRecipes) { %>
+      <p class="alert alert-warning py-2 mb-3">
+        No recipes found for "<strong><%= searchQuery %></strong>".
+        Try another recipe name.
+      </p>
+    <% } else if (hasSearch && hasRecipes) { %>
+      <p class="text-muted mb-2">
+        Showing results for: <strong><%= searchQuery %></strong>
+      </p>
+    <% } %>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="h6 mb-0">Your Recipes</h2>
+      <a href="/create" class="btn btn-sm btn-primary">+ Add Recipe</a>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-borderless align-middle">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Duration</th>
+            <th>Notes</th>
+            <th style="width: 180px;">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% if (!hasRecipes) { %>
+            <tr>
+              <td colspan="4" class="text-center text-muted py-4">
+                <% if (hasSearch) { %>
+                  No recipes matched "<strong><%= searchQuery %></strong>".
+                <% } else { %>
+                  No recipes yet. Click <strong>Add Recipe</strong> to create one.
+                <% } %>
+              </td>
+            </tr>
+          <% } else { %>
+            <% recipes.forEach(r => { %>
+              <tr>
+                <td><strong><%= r.name %></strong></td>
+                <td><%= r.time || "-" %></td>
+                <td><%= r.notes || "-" %></td>
+
+                <td class ="actions-cell">
+
+                  <a href="/view/<%= r.id %>"
+                     class="btn btn-sm btn-outline-info me-1">View</a>
+
+                  <a href="/edit/<%= r.id %>"
+                     class="btn btn-sm btn-outline-warning me-1">Edit</a>
+
+                  <form action="/delete/<%= r.id %>" method="POST"
+                        style="display:inline-block;">
+                    <button class="btn btn-sm btn-outline-danger"
+                            onclick="return confirm('Delete this recipe?')">
+                      Delete
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- Pass recipes to JS for Google-style suggestions -->
+<script>
+  window.recipeSuggestions = <%- JSON.stringify(recipes || []) %>;
+</script>
+
+<%- include('partials/footer') %>
