@@ -1,0 +1,51 @@
+<%- include('partials/header') %>
+
+<section class="recipes-shell">
+  <div class="form-shell">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="mb-0"><%= recipe.name || 'Recipe' %></h2>
+      <a href="/?view=list" class="btn btn-outline-secondary btn-sm">
+        ← Back to View Recipes
+      </a>
+    </div>
+
+    <% if (recipe.image) { %>
+      <div class="mb-3 text-center">
+        <img src="<%= recipe.image %>" alt="<%= recipe.name %>" class="img-fluid rounded">
+      </div>
+    <% } %>
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        <h6>Duration</h6>
+        <p><%= recipe.time || 'Not specified' %></p>
+      </div>
+      <div class="col-md-4">
+        <h6>Equipment</h6>
+        <p><%= recipe.equipment || 'Not specified' %></p>
+      </div>
+      <div class="col-md-4">
+        <h6>Notes</h6>
+        <p><%= recipe.notes || 'No notes added.' %></p>
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="mb-3">
+      <h5>Ingredients</h5>
+      <pre style="white-space: pre-wrap;"><%= recipe.ingredients || 'No ingredients entered.' %></pre>
+    </div>
+
+    <div class="mb-3">
+      <h5>Instructions</h5>
+      <pre style="white-space: pre-wrap;"><%= recipe.steps || 'No instructions entered.' %></pre>
+    </div>
+  </div>
+</section>
+
+<script>
+  window.recipeSuggestions = window.recipeSuggestions || [];
+</script>
+
+<%- include('partials/footer') %>

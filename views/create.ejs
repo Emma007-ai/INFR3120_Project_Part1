@@ -1,0 +1,53 @@
+<%- include('partials/header') %>
+
+<h2 class="mb-4">Create a New Recipe</h2>
+
+<form action="/create" method="POST" class="card p-4 shadow-sm">
+
+  <!-- Recipe Name -->
+  <div class="mb-3">
+    <label class="form-label">Recipe Name</label>
+    <input type="text" name="name" class="form-control" required placeholder="E.g. Jollof Rice">
+  </div>
+
+  <!-- Ingredients -->
+  <div class="mb-3">
+    <label class="form-label">Ingredients (comma separated)</label>
+    <textarea name="ingredients" class="form-control" rows="3" placeholder="Rice, Tomatoes, Pepper, Oil..."></textarea>
+  </div>
+
+  <!-- Instructions -->
+  <div class="mb-3">
+    <label class="form-label">Instructions / Steps</label>
+    <textarea name="steps" class="form-control" rows="4" placeholder="Step-by-step cooking process"></textarea>
+  </div>
+
+  <!-- Duration -->
+  <div class="mb-3">
+    <label class="form-label">Duration (e.g., 30 mins, 1 hour)</label>
+    <input type="text" name="time" class="form-control" placeholder="e.g. 45 mins">
+  </div>
+
+  <!-- Equipment -->
+  <div class="mb-3">
+    <label class="form-label">Equipment Needed</label>
+    <input type="text" name="equipment" class="form-control" placeholder="e.g., Pot, Stove, Baking Tray">
+  </div>
+
+  <!-- Optional Image -->
+  <div class="mb-3">
+    <label class="form-label">Image URL (optional)</label>
+    <input type="text" name="image" class="form-control" placeholder="https://example.com/food.jpg">
+  </div>
+
+  <!-- Notes -->
+  <div class="mb-3">
+    <label class="form-label">Notes (optional)</label>
+    <textarea name="notes" class="form-control" rows="2" placeholder="Any extra info..."></textarea>
+  </div>
+
+  <button class="btn btn-success mt-2">Save Recipe</button>
+  <a href="/" class="btn btn-secondary mt-2 ms-2">Cancel</a>
+</form>
+
+<%- include('partials/footer') %>

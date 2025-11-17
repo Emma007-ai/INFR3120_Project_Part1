@@ -1,0 +1,332 @@
+/* ------------------------------------------------------
+   GLOBAL RESET & BASE
+------------------------------------------------------ */
+body.page-body {
+  background: #f7f9fc;
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+  color: #1f2937;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+}
+
+/* ------------------------------------------------------
+   NAVBAR
+------------------------------------------------------ */
+.top-shell {
+  background: #ffffff;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+  padding: 10px 0;
+  margin-bottom: 25px;
+}
+
+.navbar-brand .rc-brand {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.rc-logo-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+/* Navbar links */
+.nav-link-main {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #475569 !important;
+}
+
+.nav-link-main:hover,
+.nav-link-main.active {
+  color: #111827 !important;
+}
+
+/* Avatar (right side button) */
+.nav-avatar {
+  display: inline-block;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: linear-gradient(45deg,#ff8c00,#ff4d4d);
+  animation: pulse 1.2s infinite ease-in-out;
+}
+
+/* Hamburger */
+.nav-toggle-btn {
+  border: none !important;
+}
+
+/* ------------------------------------------------------
+   NAVBAR SEARCH + DROPDOWN
+------------------------------------------------------ */
+.search-wrapper {
+  position: relative;
+  width: 220px;
+}
+
+.nav-search {
+  border-radius: 20px;
+  padding-left: 14px;
+  font-size: 0.85rem;
+  border: 1px solid #d1d5db;
+}
+
+.nav-search:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.3);
+}
+
+/* Dropdown below the search bar */
+.search-suggestions {
+  position: absolute;
+  top: 42px;
+  left: 0;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+  z-index: 1000;
+  display: none;
+  padding: 6px 0;
+}
+
+.search-suggestion-item {
+  width: 100%;
+  padding: 8px 14px;
+  background: transparent;
+  border: none;
+  text-align: left;
+  font-size: 0.85rem;
+  color: #111827;
+  cursor: pointer;
+}
+
+.search-suggestion-item:hover {
+  background: #f3f4f6;
+}
+
+/* ------------------------------------------------------
+   HERO SECTION
+------------------------------------------------------ */
+.hero-card {
+  background: #ffffff;
+  border-radius: 25px;
+  padding: 50px 40px;
+  margin-bottom: 30px;
+  box-shadow: 0 3px 20px rgba(0,0,0,0.08);
+}
+
+.hero-kicker {
+  font-size: 1.1rem;
+  color: #6b7280;
+}
+
+.hero-title {
+  font-size: 2.4rem;
+  font-weight: 800;
+}
+
+.hero-highlight {
+  color: #ff8c00;
+}
+
+.hero-sub {
+  font-size: 1rem;
+  color: #6b7280;
+}
+
+.hero-btn-main {
+  background: #111827;
+  border-radius: 25px;
+  padding: 12px 26px;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+/* Hero circular image wrapper WITHOUT flexbox */
+.hero-image-wrap {
+  text-align: center; /* center content horizontally */
+}
+
+.hero-image-circle {
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff8e6, #fef9c3);
+  margin: 0 auto;           /* center the circle block */
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+  overflow: hidden;         /* keep logo clipped to circle */
+}
+
+.hero-logo-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* ------------------------------------------------------
+   FEATURE STRIP
+------------------------------------------------------ */
+.info-strip {
+  margin: 20px 0;
+}
+
+.info-card {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 18px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+}
+
+.info-card h6 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+/* ------------------------------------------------------
+   RECIPES TABLE LIST
+------------------------------------------------------ */
+.recipes-shell {
+  margin-top: 40px;
+}
+
+.recipes-card {
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 18px;
+  box-shadow: 0 3px 20px rgba(0,0,0,0.08);
+}
+
+.table thead th {
+  color: #6b7280;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+}
+
+.table tbody tr td {
+  padding: 12px 10px;
+  font-size: 0.92rem;
+}
+
+.btn-outline-warning {
+  border-radius: 10px !important;
+}
+
+.btn-outline-danger {
+  border-radius: 10px !important;
+}
+
+/* Keep action buttons on one horizontal line */
+.actions-cell {
+  white-space: nowrap;
+}
+
+.actions-cell .action-btn {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* ------------------------------------------------------
+   FORMS (Create + Edit)
+------------------------------------------------------ */
+.form-shell {
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 18px;
+  box-shadow: 0 3px 20px rgba(0,0,0,0.08);
+}
+
+/* ------------------------------------------------------
+   ABOUT PAGE LAYOUT  (no flexbox)
+------------------------------------------------------ */
+.about-wrapper {
+  width: 100%;
+  padding: 30px 15px;
+}
+
+.about-box {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 18px;
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;              /* centered container */
+  box-shadow: 0 3px 20px rgba(0,0,0,0.08);
+}
+
+.about-box h1 {
+  font-size: 1.9rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: #1f2937;
+}
+
+.about-box h2 {
+  margin-top: 30px;
+  font-size: 1.4rem;
+  color: #1f2937;
+}
+
+.about-box p {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #374151;
+  margin-bottom: 15px;
+}
+
+/* ------------------------------------------------------
+   FOOTER HELPERS
+------------------------------------------------------ */
+.footer-icons a {
+  text-decoration: none;
+}
+
+.footer-icons i {
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.footer-icons a:hover i {
+  transform: translateY(-2px);
+  color: #ff8c00;
+}
+
+/* ------------------------------------------------------
+   AVATAR PULSE ANIMATION
+------------------------------------------------------ */
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.25); opacity: 0.6; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ------------------------------------------------------
+   MOBILE
+------------------------------------------------------ */
+@media (max-width: 992px) {
+  .search-wrapper {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .nav-search {
+    width: 100%;
+  }
+
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-image-circle {
+    width: 200px;
+    height: 200px;
+  }
+}
