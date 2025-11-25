@@ -8,12 +8,7 @@ var cookieParser  = require('cookie-parser');
 var logger        = require('morgan');
 
 // ----- MongoDB (Mongoose) setup -----
-const mongoose    = require('mongoose');
-const session     = require('express-session');
-const passport    = require('passport');
-
-// Passport config (make sure you created config/passport.js)
-require('./config/passport')(passport);
+const mongoose = require('mongoose');
 
 // Connect to MongoDB Atlas using the MONGO_URI from .env
 mongoose.connect(process.env.MONGO_URI)
@@ -22,7 +17,6 @@ mongoose.connect(process.env.MONGO_URI)
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-var authRouter  = require('./routes/auth');   // NEW: auth routes
 
 var app = express();
 
@@ -36,26 +30,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ----- SESSION + PASSPORT -----
-app.use(
-  session({
-    secret: 'super-secret-key-change-this',
-    resave: false,
-    saveUninitialized: false
-  })
-);
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-// Make logged-in user available in all EJS views as `user`
-app.use((req, res, next) => {
-  res.locals.user = req.user;
-  next();
-});
-
-// Routes
-app.use('/', authRouter);   // /login, /register, /logout
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
@@ -76,4 +50,5 @@ app.use(function(err, req, res, next) {
 });
 
 module.exports = app;
+
 
