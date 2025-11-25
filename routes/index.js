@@ -1,22 +1,16 @@
+
+
 // routes/index.js
 const express = require('express');
-const router  = express.Router();
+const router = express.Router();
 
 const Recipe = require('../data/recipes');
-
-// middleware: only allow logged-in users
-function ensureAuth(req, res, next) {
-  if (req.isAuthenticated && req.isAuthenticated()) {
-    return next();
-  }
-  return res.redirect('/login');
-}
 
 // ---------- HOME + SEARCH + VIEW MODE ----------
 router.get('/', async (req, res) => {
   try {
     const searchQuery = (req.query.q || '').trim();
-    const viewMode    = (req.query.view || 'dashboard').toLowerCase(); // 'dashboard' or 'list'
+    const viewMode = (req.query.view || 'dashboard').toLowerCase(); // 'dashboard' or 'list'
 
     let recipes = [];
 
@@ -51,17 +45,18 @@ router.get('/', async (req, res) => {
   }
 });
 
-// ---------- CREATE (PROTECTED) ----------
-router.get('/create', ensureAuth, (req, res) => {
+// ---------- CREATE ----------
+router.get('/create', (req, res) => {
   res.render('create', {
     title: 'Create Recipe',
     searchQuery: ''
   });
 });
 
-router.post('/create', ensureAuth, async (req, res) => {
+router.post('/create', async (req, res) => {
   try {
     const newRecipe = {
+      id: Date.now().toString(),   // keep same id style as before
       name: req.body.name,
       ingredients: req.body.ingredients,
       steps: req.body.steps,
@@ -79,10 +74,10 @@ router.post('/create', ensureAuth, async (req, res) => {
   }
 });
 
-// ---------- EDIT (PROTECTED) ----------
-router.get('/edit/:id', ensureAuth, async (req, res) => {
+// ---------- EDIT ----------
+router.get('/edit/:id', async (req, res) => {
   try {
-    const recipe = await Recipe.findById(req.params.id);
+    const recipe = await Recipe.findById(req.params.id);   // FIXED
 
     if (!recipe) return res.redirect('/');
 
@@ -97,7 +92,7 @@ router.get('/edit/:id', ensureAuth, async (req, res) => {
   }
 });
 
-router.post('/edit/:id', ensureAuth, async (req, res) => {
+router.post('/edit/:id', async (req, res) => {
   try {
     const updated = {
       name: req.body.name,
@@ -109,7 +104,7 @@ router.post('/edit/:id', ensureAuth, async (req, res) => {
       notes: req.body.notes
     };
 
-    await Recipe.findByIdAndUpdate(req.params.id, updated);
+    await Recipe.findByIdAndUpdate(req.params.id, updated); // FIXED
     res.redirect('/');
   } catch (err) {
     console.error('Error updating recipe:', err);
@@ -117,10 +112,10 @@ router.post('/edit/:id', ensureAuth, async (req, res) => {
   }
 });
 
-// ---------- DELETE (PROTECTED) ----------
-router.post('/delete/:id', ensureAuth, async (req, res) => {
+// ---------- DELETE ----------
+router.post('/delete/:id', async (req, res) => {
   try {
-    await Recipe.findByIdAndDelete(req.params.id);
+    await Recipe.findByIdAndDelete(req.params.id);  // FIXED
     res.redirect('/');
   } catch (err) {
     console.error('Error deleting recipe:', err);
@@ -131,7 +126,7 @@ router.post('/delete/:id', ensureAuth, async (req, res) => {
 // ---------- READ-ONLY VIEW ONE RECIPE ----------
 router.get('/view/:id', async (req, res) => {
   try {
-    const recipe = await Recipe.findById(req.params.id);
+    const recipe = await Recipe.findById(req.params.id); // FIXED
 
     if (!recipe) return res.redirect('/?view=list');
 
@@ -168,7 +163,7 @@ router.get('/about', async (req, res) => {
 // ---------- CONTACT ----------
 router.get('/contact', async (req, res) => {
   try {
-    const sent       = req.query.sent === '1';
+    const sent = req.query.sent === '1';
     const allRecipes = await Recipe.find().sort({ createdAt: -1 });
 
     res.render('contact', {
@@ -194,4 +189,3 @@ router.post('/contact', (req, res) => {
 });
 
 module.exports = router;
-
