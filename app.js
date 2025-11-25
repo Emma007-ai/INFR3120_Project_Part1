@@ -1,38 +1,30 @@
 // Load environment variables from .env
 require('dotenv').config();
 
-const createError  = require('http-errors');
-const express      = require('express');
-const path         = require('path');
-const cookieParser = require('cookie-parser');
-const logger       = require('morgan');
+var createError   = require('http-errors');
+var express       = require('express');
+var path          = require('path');
+var cookieParser  = require('cookie-parser');
+var logger        = require('morgan');
 
 // ----- MongoDB (Mongoose) setup -----
-const mongoose = require('mongoose');
+const mongoose    = require('mongoose');
+const session     = require('express-session');
+const passport    = require('passport');
 
-const MONGO_URI = process.env.MONGO_URI;
+// Passport config (make sure you created config/passport.js)
+require('./config/passport')(passport);
 
-// Debug: confirm env is set (very important for Render)
-if (!MONGO_URI) {
-  console.error('❌ MONGO_URI is NOT set. Check your .env / Render env vars.');
-} else {
-  console.log('✅ MONGO_URI is set (value hidden). Trying to connect...');
-  mongoose
-    .connect(MONGO_URI, {
-      // options are safe defaults
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
-    .then(() => console.log('✅ Connected to MongoDB Atlas'))
-    .catch((err) => {
-      console.error('❌ MongoDB connection error:', err.message);
-    });
-}
+// Connect to MongoDB Atlas using the MONGO_URI from .env
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ Connected to MongoDB Atlas'))
+  .catch(err => console.error('❌ MongoDB connection error:', err));
 
-const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
+var indexRouter = require('./routes/index');
+var usersRouter = require('./routes/users');
+var authRouter  = require('./routes/auth');   // NEW: auth routes
 
-const app = express();
+var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -44,17 +36,36 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// ----- SESSION + PASSPORT -----
+app.use(
+  session({
+    secret: 'super-secret-key-change-this',
+    resave: false,
+    saveUninitialized: false
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Make logged-in user available in all EJS views as `user`
+app.use((req, res, next) => {
+  res.locals.user = req.user;
+  next();
+});
+
 // Routes
+app.use('/', authRouter);   // /login, /register, /logout
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function (err, req, res, next) {
+app.use(function(err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -65,3 +76,4 @@ app.use(function (err, req, res, next) {
 });
 
 module.exports = app;
+
