@@ -74,13 +74,14 @@ router.post('/create', async (req, res) => {
 // ---------- EDIT ----------
 router.get('/edit/:id', async (req, res) => {
   try {
-    const recipe = await Recipe.findOne({ id: req.params.id });
+    const recipe = await Recipe.findById(req.params.id);   // FIXED
+
     if (!recipe) return res.redirect('/');
 
     res.render('edit', {
       title: 'Edit Recipe',
       recipe,
-      searchQuery: '',
+      searchQuery: ''
     });
   } catch (err) {
     console.error('Error loading recipe for edit:', err);
@@ -97,10 +98,10 @@ router.post('/edit/:id', async (req, res) => {
       time: req.body.time,
       equipment: req.body.equipment,
       image: req.body.image,
-      notes: req.body.notes,
+      notes: req.body.notes
     };
 
-    await Recipe.findOneAndUpdate({ id: req.params.id }, updated);
+    await Recipe.findByIdAndUpdate(req.params.id, updated); // FIXED
     res.redirect('/');
   } catch (err) {
     console.error('Error updating recipe:', err);
@@ -111,7 +112,7 @@ router.post('/edit/:id', async (req, res) => {
 // ---------- DELETE ----------
 router.post('/delete/:id', async (req, res) => {
   try {
-    await Recipe.findOneAndDelete({ id: req.params.id });
+    await Recipe.findByIdAndDelete(req.params.id);  // FIXED
     res.redirect('/');
   } catch (err) {
     console.error('Error deleting recipe:', err);
@@ -122,16 +123,14 @@ router.post('/delete/:id', async (req, res) => {
 // ---------- READ-ONLY VIEW ONE RECIPE ----------
 router.get('/view/:id', async (req, res) => {
   try {
-    const recipe = await Recipe.findOne({ id: req.params.id });
+    const recipe = await Recipe.findById(req.params.id); // FIXED
 
-    if (!recipe) {
-      return res.redirect('/?view=list');
-    }
+    if (!recipe) return res.redirect('/?view=list');
 
     res.render('recipe-view', {
       title: recipe.name ? `${recipe.name} | View Recipe` : 'View Recipe',
       searchQuery: '',
-      recipe,
+      recipe
     });
   } catch (err) {
     console.error('Error viewing recipe:', err);
