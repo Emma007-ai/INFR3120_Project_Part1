@@ -1,7 +1,16 @@
 // routes/index.js
 const express = require('express');
 const router  = express.Router();
-const Recipe  = require('../data/recipes');
+
+const Recipe = require('../data/recipes');
+
+// middleware: only allow logged-in users
+function ensureAuth(req, res, next) {
+  if (req.isAuthenticated && req.isAuthenticated()) {
+    return next();
+  }
+  return res.redirect('/login');
+}
 
 // ---------- HOME + SEARCH + VIEW MODE ----------
 router.get('/', async (req, res) => {
@@ -17,8 +26,8 @@ router.get('/', async (req, res) => {
         $or: [
           { name: regex },
           { ingredients: regex },
-          { notes: regex },
-        ],
+          { notes: regex }
+        ]
       }).sort({ createdAt: -1 });
     } else {
       recipes = await Recipe.find().sort({ createdAt: -1 });
@@ -28,7 +37,7 @@ router.get('/', async (req, res) => {
       title: 'RecipeCraft',
       recipes,
       searchQuery,
-      viewMode,
+      viewMode
     });
   } catch (err) {
     console.error('Error loading recipes:', err);
@@ -37,30 +46,29 @@ router.get('/', async (req, res) => {
       recipes: [],
       searchQuery: '',
       viewMode: 'dashboard',
-      error: 'Could not load recipes right now.',
+      error: 'Could not load recipes right now.'
     });
   }
 });
 
-// ---------- CREATE ----------
-router.get('/create', (req, res) => {
+// ---------- CREATE (PROTECTED) ----------
+router.get('/create', ensureAuth, (req, res) => {
   res.render('create', {
     title: 'Create Recipe',
-    searchQuery: '',
+    searchQuery: ''
   });
 });
 
-router.post('/create', async (req, res) => {
+router.post('/create', ensureAuth, async (req, res) => {
   try {
     const newRecipe = {
-      id: Date.now().toString(), // custom id field
       name: req.body.name,
       ingredients: req.body.ingredients,
       steps: req.body.steps,
       time: req.body.time,
       equipment: req.body.equipment,
       image: req.body.image,
-      notes: req.body.notes,
+      notes: req.body.notes
     };
 
     await Recipe.create(newRecipe);
@@ -71,10 +79,10 @@ router.post('/create', async (req, res) => {
   }
 });
 
-// ---------- EDIT ----------
-router.get('/edit/:id', async (req, res) => {
+// ---------- EDIT (PROTECTED) ----------
+router.get('/edit/:id', ensureAuth, async (req, res) => {
   try {
-    const recipe = await Recipe.findById(req.params.id);   // FIXED
+    const recipe = await Recipe.findById(req.params.id);
 
     if (!recipe) return res.redirect('/');
 
@@ -89,7 +97,7 @@ router.get('/edit/:id', async (req, res) => {
   }
 });
 
-router.post('/edit/:id', async (req, res) => {
+router.post('/edit/:id', ensureAuth, async (req, res) => {
   try {
     const updated = {
       name: req.body.name,
@@ -101,7 +109,7 @@ router.post('/edit/:id', async (req, res) => {
       notes: req.body.notes
     };
 
-    await Recipe.findByIdAndUpdate(req.params.id, updated); // FIXED
+    await Recipe.findByIdAndUpdate(req.params.id, updated);
     res.redirect('/');
   } catch (err) {
     console.error('Error updating recipe:', err);
@@ -109,10 +117,10 @@ router.post('/edit/:id', async (req, res) => {
   }
 });
 
-// ---------- DELETE ----------
-router.post('/delete/:id', async (req, res) => {
+// ---------- DELETE (PROTECTED) ----------
+router.post('/delete/:id', ensureAuth, async (req, res) => {
   try {
-    await Recipe.findByIdAndDelete(req.params.id);  // FIXED
+    await Recipe.findByIdAndDelete(req.params.id);
     res.redirect('/');
   } catch (err) {
     console.error('Error deleting recipe:', err);
@@ -123,7 +131,7 @@ router.post('/delete/:id', async (req, res) => {
 // ---------- READ-ONLY VIEW ONE RECIPE ----------
 router.get('/view/:id', async (req, res) => {
   try {
-    const recipe = await Recipe.findById(req.params.id); // FIXED
+    const recipe = await Recipe.findById(req.params.id);
 
     if (!recipe) return res.redirect('/?view=list');
 
@@ -145,14 +153,14 @@ router.get('/about', async (req, res) => {
     res.render('about', {
       title: 'About RecipeCraft',
       searchQuery: '',
-      recipes: allRecipes,
+      recipes: allRecipes
     });
   } catch (err) {
     console.error('Error loading recipes for about page:', err);
     res.render('about', {
       title: 'About RecipeCraft',
       searchQuery: '',
-      recipes: [],
+      recipes: []
     });
   }
 });
@@ -167,7 +175,7 @@ router.get('/contact', async (req, res) => {
       title: 'Contact RecipeCraft',
       searchQuery: '',
       submitted: sent,
-      recipes: allRecipes,
+      recipes: allRecipes
     });
   } catch (err) {
     console.error('Error loading recipes for contact page:', err);
@@ -175,7 +183,7 @@ router.get('/contact', async (req, res) => {
       title: 'Contact RecipeCraft',
       searchQuery: '',
       submitted: false,
-      recipes: [],
+      recipes: []
     });
   }
 });
@@ -186,3 +194,4 @@ router.post('/contact', (req, res) => {
 });
 
 module.exports = router;
+
