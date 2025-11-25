@@ -1,14 +1,13 @@
 // routes/index.js
 const express = require('express');
-const router = express.Router();
-
-const Recipe = require('../data/recipes');
+const router  = express.Router();
+const Recipe  = require('../data/recipes');
 
 // ---------- HOME + SEARCH + VIEW MODE ----------
 router.get('/', async (req, res) => {
   try {
     const searchQuery = (req.query.q || '').trim();
-    const viewMode = (req.query.view || 'dashboard').toLowerCase(); // 'dashboard' or 'list'
+    const viewMode    = (req.query.view || 'dashboard').toLowerCase(); // 'dashboard' or 'list'
 
     let recipes = [];
 
@@ -18,8 +17,8 @@ router.get('/', async (req, res) => {
         $or: [
           { name: regex },
           { ingredients: regex },
-          { notes: regex }
-        ]
+          { notes: regex },
+        ],
       }).sort({ createdAt: -1 });
     } else {
       recipes = await Recipe.find().sort({ createdAt: -1 });
@@ -29,7 +28,7 @@ router.get('/', async (req, res) => {
       title: 'RecipeCraft',
       recipes,
       searchQuery,
-      viewMode
+      viewMode,
     });
   } catch (err) {
     console.error('Error loading recipes:', err);
@@ -38,7 +37,7 @@ router.get('/', async (req, res) => {
       recipes: [],
       searchQuery: '',
       viewMode: 'dashboard',
-      error: 'Could not load recipes right now.'
+      error: 'Could not load recipes right now.',
     });
   }
 });
@@ -47,21 +46,21 @@ router.get('/', async (req, res) => {
 router.get('/create', (req, res) => {
   res.render('create', {
     title: 'Create Recipe',
-    searchQuery: ''
+    searchQuery: '',
   });
 });
 
 router.post('/create', async (req, res) => {
   try {
     const newRecipe = {
-      id: Date.now().toString(),   // keep same id style as before
+      id: Date.now().toString(), // custom id field
       name: req.body.name,
       ingredients: req.body.ingredients,
       steps: req.body.steps,
       time: req.body.time,
       equipment: req.body.equipment,
       image: req.body.image,
-      notes: req.body.notes
+      notes: req.body.notes,
     };
 
     await Recipe.create(newRecipe);
@@ -81,7 +80,7 @@ router.get('/edit/:id', async (req, res) => {
     res.render('edit', {
       title: 'Edit Recipe',
       recipe,
-      searchQuery: ''
+      searchQuery: '',
     });
   } catch (err) {
     console.error('Error loading recipe for edit:', err);
@@ -98,7 +97,7 @@ router.post('/edit/:id', async (req, res) => {
       time: req.body.time,
       equipment: req.body.equipment,
       image: req.body.image,
-      notes: req.body.notes
+      notes: req.body.notes,
     };
 
     await Recipe.findOneAndUpdate({ id: req.params.id }, updated);
@@ -132,7 +131,7 @@ router.get('/view/:id', async (req, res) => {
     res.render('recipe-view', {
       title: recipe.name ? `${recipe.name} | View Recipe` : 'View Recipe',
       searchQuery: '',
-      recipe
+      recipe,
     });
   } catch (err) {
     console.error('Error viewing recipe:', err);
@@ -147,14 +146,14 @@ router.get('/about', async (req, res) => {
     res.render('about', {
       title: 'About RecipeCraft',
       searchQuery: '',
-      recipes: allRecipes
+      recipes: allRecipes,
     });
   } catch (err) {
     console.error('Error loading recipes for about page:', err);
     res.render('about', {
       title: 'About RecipeCraft',
       searchQuery: '',
-      recipes: []
+      recipes: [],
     });
   }
 });
@@ -162,14 +161,14 @@ router.get('/about', async (req, res) => {
 // ---------- CONTACT ----------
 router.get('/contact', async (req, res) => {
   try {
-    const sent = req.query.sent === '1';
+    const sent       = req.query.sent === '1';
     const allRecipes = await Recipe.find().sort({ createdAt: -1 });
 
     res.render('contact', {
       title: 'Contact RecipeCraft',
       searchQuery: '',
       submitted: sent,
-      recipes: allRecipes
+      recipes: allRecipes,
     });
   } catch (err) {
     console.error('Error loading recipes for contact page:', err);
@@ -177,7 +176,7 @@ router.get('/contact', async (req, res) => {
       title: 'Contact RecipeCraft',
       searchQuery: '',
       submitted: false,
-      recipes: []
+      recipes: [],
     });
   }
 });

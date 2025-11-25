@@ -1,24 +1,38 @@
 // Load environment variables from .env
 require('dotenv').config();
 
-var createError   = require('http-errors');
-var express       = require('express');
-var path          = require('path');
-var cookieParser  = require('cookie-parser');
-var logger        = require('morgan');
+const createError  = require('http-errors');
+const express      = require('express');
+const path         = require('path');
+const cookieParser = require('cookie-parser');
+const logger       = require('morgan');
 
 // ----- MongoDB (Mongoose) setup -----
 const mongoose = require('mongoose');
 
-// Connect to MongoDB Atlas using the MONGO_URI from .env
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('✅ Connected to MongoDB Atlas'))
-  .catch(err => console.error('❌ MongoDB connection error:', err));
+const MONGO_URI = process.env.MONGO_URI;
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+// Debug: confirm env is set (very important for Render)
+if (!MONGO_URI) {
+  console.error('❌ MONGO_URI is NOT set. Check your .env / Render env vars.');
+} else {
+  console.log('✅ MONGO_URI is set (value hidden). Trying to connect...');
+  mongoose
+    .connect(MONGO_URI, {
+      // options are safe defaults
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+    .then(() => console.log('✅ Connected to MongoDB Atlas'))
+    .catch((err) => {
+      console.error('❌ MongoDB connection error:', err.message);
+    });
+}
 
-var app = express();
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
+
+const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -30,16 +44,17 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Routes
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
